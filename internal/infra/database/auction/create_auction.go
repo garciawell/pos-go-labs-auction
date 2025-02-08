@@ -5,7 +5,9 @@ import (
 	"fullcycle-auction_go/configuration/logger"
 	"fullcycle-auction_go/internal/entity/auction_entity"
 	"fullcycle-auction_go/internal/internal_error"
+	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -47,4 +49,23 @@ func (ar *AuctionRepository) CreateAuction(
 	}
 
 	return nil
+}
+
+func MonitorExpiredAuctions(ctx context.Context, database *mongo.Database) {
+	auctionRepo := NewAuctionRepository(database)
+	getAllAuctions, err := auctionRepo.FindAuctions(ctx, auction_entity.Active, "", "")
+	if err != nil {
+		logger.Error("Error trying to find auctions in monite Expires", err)
+		return
+	}
+
+	for {
+		time.Sleep(5 * time.Second)
+
+		for id, auction := range getAllAuctions {
+			if auction.VerifyAuctionExpires() {
+				auctionRepo.Collection.UpdateOne(ctx, bson.M{"$set": bson.M{"status": auction_entity.Completed}}, bson.M{"_id": id})
+			}
+		}
+	}
 }

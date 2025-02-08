@@ -1,0 +1,16 @@
+### GET Auction
+GET http://localhost:8080/auction?status=0 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### POST Auction
+POST http://localhost:8080/auction HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "product_name": "BMW M2 Competition",
+    "description": "BMW Lance descrição produto testes request",
+    "condition": 0,
+    "Category": "car"
+}
