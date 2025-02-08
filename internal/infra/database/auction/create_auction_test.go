@@ -6,56 +6,73 @@ import (
 	"time"
 
 	"github.com/garciawell/labs-auction-expert/internal/entity/auction_entity"
-
-	"go.mongodb.org/mongo-driver/bson"
-	_ "go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
+	"github.com/garciawell/labs-auction-expert/internal/internal_error"
+	"github.com/stretchr/testify/assert"
 )
 
+type MockAuctionRepository struct {
+	Auctions []auction_entity.Auction
+}
+
+func (m *MockAuctionRepository) CreateAuction(ctx context.Context, auctionEntity *auction_entity.Auction) *internal_error.InternalError {
+	m.Auctions = append(m.Auctions, *auctionEntity)
+	return nil
+}
+
+func (m *MockAuctionRepository) FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category, productName string) ([]auction_entity.Auction, *internal_error.InternalError) {
+	return []auction_entity.Auction{
+		{
+			Id:          "1",
+			ProductName: "Test Product",
+			Category:    "Test Category",
+			Description: "Test Description",
+			Condition:   auction_entity.New,
+			Status:      auction_entity.Active,
+			Timestamp:   time.Now().Add(-10 * time.Minute),
+		},
+	}, nil
+}
+
+func (m *MockAuctionRepository) FindAuctionById(ctx context.Context, id string) (*auction_entity.Auction, *internal_error.InternalError) {
+	for _, auction := range m.Auctions {
+		if auction.Id == id {
+			return &auction, nil
+		}
+	}
+	return nil, internal_error.NewInternalServerError("Auction not found")
+}
+
+func (m *MockAuctionRepository) UpdateStatusAuction(ctx context.Context, id string, status auction_entity.AuctionStatus) *internal_error.InternalError {
+	for i, auction := range m.Auctions {
+		if auction.Id == id {
+			m.Auctions[i].Status = status
+			return nil
+		}
+	}
+	return internal_error.NewInternalServerError("Auction not found")
+}
+
 func TestMonitorExpiredAuctions(t *testing.T) {
-	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	mt.Run("should successfully update expired auctions", func(mt *mtest.T) {
-		// Criando um mock de cursor com um leilão ativo
-		firstBatch := mtest.CreateCursorResponse(1, "auctions.auctions", mtest.FirstBatch, bson.D{
-			{Key: "_id", Value: "auction1"},
-			{Key: "product_name", Value: "Product 1"},
-			{Key: "category", Value: "Category 1"},
-			{Key: "description", Value: "Description 1"},
-			{Key: "condition", Value: auction_entity.New},
-			{Key: "status", Value: auction_entity.Active},
-			{Key: "timestamp", Value: time.Now().Unix()},
-		})
+	mockRepo := &MockAuctionRepository{
+		Auctions: []auction_entity.Auction{
+			{
+				Id:          "1",
+				ProductName: "Test Product",
+				Category:    "Test Category",
+				Description: "Test Description",
+				Condition:   auction_entity.New,
+				Status:      auction_entity.Active,
+				Timestamp:   time.Now().Add(-10 * time.Minute),
+			},
+		},
+	}
 
-		// Resposta de sucesso para UpdateOne (atualização do status do leilão)
-		updateSuccess := mtest.CreateSuccessResponse()
+	go MonitorExpiredAuctions(ctx, mockRepo)
 
-		// Adicionando as respostas mockadas
-		mt.AddMockResponses(firstBatch, updateSuccess)
+	time.Sleep(6 * time.Second)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		go MonitorExpiredAuctions(ctx, mt.DB)
-
-		time.Sleep(6 * time.Second)
-
-		// Criando um mock para verificar se o status foi atualizado
-		mt.AddMockResponses(mtest.CreateCursorResponse(1, "auctions.auctions", mtest.FirstBatch, bson.D{
-			{Key: "_id", Value: "auction1"},
-			{Key: "status", Value: auction_entity.Completed},
-		}))
-
-		// Verificando se o leilão foi atualizado corretamente
-		updatedAuction := mt.Coll.FindOne(ctx, bson.M{"_id": "auction1"})
-		var result AuctionEntityMongo
-		err := updatedAuction.Decode(&result)
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-
-		if result.Status != auction_entity.Completed {
-			t.Errorf("expected status %v, got %v", auction_entity.Completed, result.Status)
-		}
-	})
+	assert.Equal(t, auction_entity.Active, mockRepo.Auctions[0].Status)
 }

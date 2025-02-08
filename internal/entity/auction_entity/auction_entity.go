@@ -90,4 +90,9 @@ type AuctionRepositoryInterface interface {
 
 	FindAuctionById(
 		ctx context.Context, id string) (*Auction, *internal_error.InternalError)
+
+	UpdateStatusAuction(
+		ctx context.Context,
+		id string,
+		status AuctionStatus) *internal_error.InternalError
 }

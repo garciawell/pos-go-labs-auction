@@ -20,6 +20,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+var auctRepository *auction.AuctionRepository
+
 func main() {
 	ctx := context.Background()
 
@@ -46,7 +48,7 @@ func main() {
 	router.GET("/bid/:auctionId", bidController.FindBidByAuctionId)
 	router.GET("/user/:userId", userController.FindUserById)
 
-	go auction.MonitorExpiredAuctions(ctx, databaseConnection)
+	go auction.MonitorExpiredAuctions(ctx, auctRepository)
 
 	router.Run(":8080")
 }
@@ -57,6 +59,7 @@ func initDependencies(database *mongo.Database) (
 	auctionController *auction_controller.AuctionController) {
 
 	auctionRepository := auction.NewAuctionRepository(database)
+	auctRepository = auctionRepository
 	bidRepository := bid.NewBidRepository(database, auctionRepository)
 	userRepository := user.NewUserRepository(database)
 

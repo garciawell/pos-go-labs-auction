@@ -65,10 +65,9 @@ func (ar *AuctionRepository) UpdateStatusAuction(
 	return nil
 }
 
-func MonitorExpiredAuctions(ctx context.Context, database *mongo.Database) {
+func MonitorExpiredAuctions(ctx context.Context, auctionRepo auction_entity.AuctionRepositoryInterface) {
 	for {
 		time.Sleep(5 * time.Second)
-		auctionRepo := NewAuctionRepository(database)
 		getAllAuctions, err := auctionRepo.FindAuctions(ctx, auction_entity.AuctionStatus(0), "", "")
 		if err != nil {
 			logger.Error("Error trying to find auctions in monite Expires", err)
