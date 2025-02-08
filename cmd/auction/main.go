@@ -2,17 +2,18 @@ package main
 
 import (
 	"context"
-	"fullcycle-auction_go/configuration/database/mongodb"
-	"fullcycle-auction_go/internal/infra/api/web/controller/auction_controller"
-	"fullcycle-auction_go/internal/infra/api/web/controller/bid_controller"
-	"fullcycle-auction_go/internal/infra/api/web/controller/user_controller"
-	"fullcycle-auction_go/internal/infra/database/auction"
-	"fullcycle-auction_go/internal/infra/database/bid"
-	"fullcycle-auction_go/internal/infra/database/user"
-	"fullcycle-auction_go/internal/usecase/auction_usecase"
-	"fullcycle-auction_go/internal/usecase/bid_usecase"
-	"fullcycle-auction_go/internal/usecase/user_usecase"
 	"log"
+
+	"github.com/garciawell/labs-auction-expert/configuration/database/mongodb"
+	"github.com/garciawell/labs-auction-expert/internal/infra/api/web/controller/auction_controller"
+	"github.com/garciawell/labs-auction-expert/internal/infra/api/web/controller/bid_controller"
+	"github.com/garciawell/labs-auction-expert/internal/infra/api/web/controller/user_controller"
+	"github.com/garciawell/labs-auction-expert/internal/infra/database/auction"
+	"github.com/garciawell/labs-auction-expert/internal/infra/database/bid"
+	"github.com/garciawell/labs-auction-expert/internal/infra/database/user"
+	"github.com/garciawell/labs-auction-expert/internal/usecase/auction_usecase"
+	"github.com/garciawell/labs-auction-expert/internal/usecase/bid_usecase"
+	"github.com/garciawell/labs-auction-expert/internal/usecase/user_usecase"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -45,7 +46,7 @@ func main() {
 	router.GET("/bid/:auctionId", bidController.FindBidByAuctionId)
 	router.GET("/user/:userId", userController.FindUserById)
 
-	go auction.MonitorExpiredAuctions(ctx, auctionsController)
+	go auction.MonitorExpiredAuctions(ctx, databaseConnection)
 
 	router.Run(":8080")
 }

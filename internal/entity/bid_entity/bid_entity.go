@@ -2,9 +2,10 @@ package bid_entity
 
 import (
 	"context"
-	"fullcycle-auction_go/internal/internal_error"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/garciawell/labs-auction-expert/internal/internal_error"
+	"github.com/google/uuid"
 )
 
 type Bid struct {

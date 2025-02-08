@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"fullcycle-auction_go/internal/entity/auction_entity"
+	"github.com/garciawell/labs-auction-expert/internal/entity/auction_entity"
 
 	"go.mongodb.org/mongo-driver/bson"
 	_ "go.mongodb.org/mongo-driver/mongo"
