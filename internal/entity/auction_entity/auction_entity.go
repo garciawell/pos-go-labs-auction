@@ -41,19 +41,13 @@ func (au *Auction) Validate() *internal_error.InternalError {
 	return nil
 }
 
-func TimeAuctionOnTimestamp() int64 {
-	auctionTime := os.Getenv("TIME_AUCTION")
-	duration, err := time.ParseDuration(auctionTime)
-	if err != nil {
-		return 0
-	}
-
-	timeAuction := time.Now().Add(duration)
-	return timeAuction.Unix()
-}
-
 func (au *Auction) VerifyAuctionExpires() bool {
-	if au.Timestamp.Unix() > TimeAuctionOnTimestamp() && au.Status == Active {
+	durationAuction := os.Getenv("TIME_AUCTION")
+	duration, err := time.ParseDuration(durationAuction)
+	if err != nil {
+		return false
+	}
+	if time.Now().Unix() > au.Timestamp.Add(duration).Unix() && au.Status == Active {
 		return true
 	}
 	return false
