@@ -3,7 +3,7 @@ GET http://localhost:8080/auction?status=0 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
-### POST Auction
+### POST CREATE Auction
 POST http://localhost:8080/auction HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
