@@ -3,8 +3,10 @@ package auction_entity
 import (
 	"context"
 	"fullcycle-auction_go/internal/internal_error"
-	"github.com/google/uuid"
+	"os"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func CreateAuction(
@@ -37,6 +39,24 @@ func (au *Auction) Validate() *internal_error.InternalError {
 	}
 
 	return nil
+}
+
+func TimeAuctionOnTimestamp() int64 {
+	auctionTime := os.Getenv("TIME_AUCTION")
+	duration, err := time.ParseDuration(auctionTime)
+	if err != nil {
+		return 0
+	}
+
+	timeAuction := time.Now().Add(duration)
+	return timeAuction.Unix()
+}
+
+func (au *Auction) VerifyAuctionExpires() bool {
+	if au.Timestamp.Unix() > TimeAuctionOnTimestamp() && au.Status == Active {
+		return true
+	}
+	return false
 }
 
 type Auction struct {
