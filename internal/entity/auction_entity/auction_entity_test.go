@@ -10,7 +10,6 @@ import (
 )
 
 func TestVerifyAuctionExpires(t *testing.T) {
-	// Set up environment variable
 	os.Setenv("TIME_AUCTION", "1h")
 	defer os.Unsetenv("TIME_AUCTION")
 
