@@ -2,6 +2,7 @@ package auction
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -19,33 +20,24 @@ func (m *MockAuctionRepository) CreateAuction(ctx context.Context, auctionEntity
 	return nil
 }
 
+// 🔥 Agora retorna a referência correta dos leilões armazenados no mock
 func (m *MockAuctionRepository) FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category, productName string) ([]auction_entity.Auction, *internal_error.InternalError) {
-	return []auction_entity.Auction{
-		{
-			Id:          "1",
-			ProductName: "Test Product",
-			Category:    "Test Category",
-			Description: "Test Description",
-			Condition:   auction_entity.New,
-			Status:      auction_entity.Active,
-			Timestamp:   time.Now().Add(-10 * time.Minute),
-		},
-	}, nil
+	return m.Auctions, nil
 }
 
 func (m *MockAuctionRepository) FindAuctionById(ctx context.Context, id string) (*auction_entity.Auction, *internal_error.InternalError) {
-	for _, auction := range m.Auctions {
-		if auction.Id == id {
-			return &auction, nil
+	for i := range m.Auctions {
+		if m.Auctions[i].Id == id {
+			return &m.Auctions[i], nil // 🔥 Retorna referência correta
 		}
 	}
 	return nil, internal_error.NewInternalServerError("Auction not found")
 }
 
 func (m *MockAuctionRepository) UpdateStatusAuction(ctx context.Context, id string, status auction_entity.AuctionStatus) *internal_error.InternalError {
-	for i, auction := range m.Auctions {
-		if auction.Id == id {
-			m.Auctions[i].Status = status
+	for i := range m.Auctions {
+		if m.Auctions[i].Id == id {
+			m.Auctions[i].Status = status // 🔥 Atualiza diretamente a referência
 			return nil
 		}
 	}
@@ -53,6 +45,7 @@ func (m *MockAuctionRepository) UpdateStatusAuction(ctx context.Context, id stri
 }
 
 func TestMonitorExpiredAuctions(t *testing.T) {
+	os.Setenv("TIME_AUCTION", "1m")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -74,5 +67,6 @@ func TestMonitorExpiredAuctions(t *testing.T) {
 
 	time.Sleep(6 * time.Second)
 
-	assert.Equal(t, auction_entity.Active, mockRepo.Auctions[0].Status)
+	// 🔥 Verifica se o status foi atualizado corretamente
+	assert.Equal(t, auction_entity.Completed, mockRepo.Auctions[0].Status)
 }
