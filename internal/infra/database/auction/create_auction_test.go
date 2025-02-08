@@ -20,7 +20,6 @@ func (m *MockAuctionRepository) CreateAuction(ctx context.Context, auctionEntity
 	return nil
 }
 
-// 🔥 Agora retorna a referência correta dos leilões armazenados no mock
 func (m *MockAuctionRepository) FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category, productName string) ([]auction_entity.Auction, *internal_error.InternalError) {
 	return m.Auctions, nil
 }
@@ -28,7 +27,7 @@ func (m *MockAuctionRepository) FindAuctions(ctx context.Context, status auction
 func (m *MockAuctionRepository) FindAuctionById(ctx context.Context, id string) (*auction_entity.Auction, *internal_error.InternalError) {
 	for i := range m.Auctions {
 		if m.Auctions[i].Id == id {
-			return &m.Auctions[i], nil // 🔥 Retorna referência correta
+			return &m.Auctions[i], nil //  Retorna referência correta
 		}
 	}
 	return nil, internal_error.NewInternalServerError("Auction not found")
@@ -37,7 +36,7 @@ func (m *MockAuctionRepository) FindAuctionById(ctx context.Context, id string) 
 func (m *MockAuctionRepository) UpdateStatusAuction(ctx context.Context, id string, status auction_entity.AuctionStatus) *internal_error.InternalError {
 	for i := range m.Auctions {
 		if m.Auctions[i].Id == id {
-			m.Auctions[i].Status = status // 🔥 Atualiza diretamente a referência
+			m.Auctions[i].Status = status //  Atualiza diretamente a referência
 			return nil
 		}
 	}
@@ -67,6 +66,5 @@ func TestMonitorExpiredAuctions(t *testing.T) {
 
 	time.Sleep(6 * time.Second)
 
-	// 🔥 Verifica se o status foi atualizado corretamente
 	assert.Equal(t, auction_entity.Completed, mockRepo.Auctions[0].Status)
 }
