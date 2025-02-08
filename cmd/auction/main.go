@@ -45,7 +45,7 @@ func main() {
 	router.GET("/bid/:auctionId", bidController.FindBidByAuctionId)
 	router.GET("/user/:userId", userController.FindUserById)
 
-	// go auction.MonitorExpiredAuctions(ctx, databaseConnection)
+	go auction.MonitorExpiredAuctions(ctx, auctionsController)
 
 	router.Run(":8080")
 }

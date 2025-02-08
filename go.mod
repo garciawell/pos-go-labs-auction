@@ -1,5 +1,4 @@
-module fullcycle-auction_go
-
+module github.com/garciawell/labs-auction-expert
 go 1.21.0
 
 require (
