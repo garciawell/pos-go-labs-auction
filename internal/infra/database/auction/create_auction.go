@@ -3,10 +3,11 @@ package auction
 import (
 	"context"
 	"fmt"
-	"fullcycle-auction_go/configuration/logger"
-	"fullcycle-auction_go/internal/entity/auction_entity"
-	"fullcycle-auction_go/internal/internal_error"
 	"time"
+
+	"github.com/garciawell/labs-auction-expert/configuration/logger"
+	"github.com/garciawell/labs-auction-expert/internal/entity/auction_entity"
+	"github.com/garciawell/labs-auction-expert/internal/internal_error"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

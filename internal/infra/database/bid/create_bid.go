@@ -2,14 +2,15 @@ package bid
 
 import (
 	"context"
-	"fullcycle-auction_go/configuration/logger"
-	"fullcycle-auction_go/internal/entity/auction_entity"
-	"fullcycle-auction_go/internal/entity/bid_entity"
-	"fullcycle-auction_go/internal/infra/database/auction"
-	"fullcycle-auction_go/internal/internal_error"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/garciawell/labs-auction-expert/configuration/logger"
+	"github.com/garciawell/labs-auction-expert/internal/entity/auction_entity"
+	"github.com/garciawell/labs-auction-expert/internal/entity/bid_entity"
+	"github.com/garciawell/labs-auction-expert/internal/infra/database/auction"
+	"github.com/garciawell/labs-auction-expert/internal/internal_error"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
